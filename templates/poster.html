@@ -2,9 +2,427 @@
 
 {% block content %}
 
-<div id="poster" class="flex items-center justify-center h-screen" hx-get="/db/init" hx-trigger="load">
-    {% include 'cover/cover.html' %}
-    {% include 'content/content.html' %}
+<div id="showcase" class="flex flex-col items-center justify-center min-h-screen bg-[var(--bg-primary)] px-4 py-10">
+
+    <!-- Hero Section -->
+    <div class="text-center mb-10">
+        <h1 class="text-4xl font-bold text-[var(--text-primary)] mb-4">DJ Showcase</h1>
+        <p class="text-xl text-[var(--text-secondary)] max-w-2xl mx-auto">
+            Watch AI craft your perfect playlist in real-time. Choose a mood or describe your own,
+            and GPT + Spotify will create something unique just for you.
+        </p>
+    </div>
+
+    <!-- Main Content Card -->
+    <div class="card-glass p-8 w-full max-w-4xl">
+
+        <!-- Preset Grid -->
+        <div class="mb-8">
+            <h2 class="text-2xl font-semibold text-[var(--text-primary)] mb-4">Choose a Mood</h2>
+            <div id="preset-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {% for preset in presets %}
+                <button
+                    type="button"
+                    class="preset-card text-left"
+                    data-preset-id="{{ preset.id }}"
+                    onclick="selectPreset('{{ preset.id }}')"
+                >
+                    <div class="text-3xl mb-2">{{ preset.icon }}</div>
+                    <div class="font-semibold text-[var(--text-primary)]">{{ preset.name }}</div>
+                    <div class="text-sm text-[var(--text-secondary)]">{{ preset.description }}</div>
+                    <div class="text-xs text-[var(--text-muted)] mt-2">
+                        {% for keyword in preset.keywords %}
+                        <span class="keyword-pill mr-1 mb-1">{{ keyword }}</span>
+                        {% endfor %}
+                    </div>
+                </button>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Divider -->
+        <div class="flex items-center gap-4 mb-8">
+            <div class="flex-grow border-t border-[var(--border-default)]"></div>
+            <span class="text-[var(--text-muted)] text-sm font-medium">OR</span>
+            <div class="flex-grow border-t border-[var(--border-default)]"></div>
+        </div>
+
+        <!-- Custom Keywords Input -->
+        <div class="mb-8">
+            <h2 class="text-2xl font-semibold text-[var(--text-primary)] mb-4">Describe Your Own Mood</h2>
+            <input
+                type="text"
+                id="custom-keywords"
+                class="input-field w-full text-lg"
+                placeholder="Enter keywords separated by commas (e.g., happy, summer, energetic)"
+            >
+        </div>
+
+        <!-- Email Input -->
+        <div class="mb-8">
+            <h2 class="text-2xl font-semibold text-[var(--text-primary)] mb-4">Get Your Playlist Link</h2>
+            <input
+                type="email"
+                id="email-input"
+                class="input-field w-full text-lg"
+                placeholder="Enter your email (optional)"
+            >
+            <p class="text-sm text-[var(--text-muted)] mt-2">We'll send you the playlist link. Leave empty to just view it here.</p>
+        </div>
+
+        <!-- Generate Button -->
+        <button
+            id="generate-btn"
+            onclick="startGeneration()"
+            class="btn-neon w-full py-4 px-8 text-xl disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+            Generate Playlist
+        </button>
+
+        <!-- Progress Panel (hidden initially) -->
+        <div id="progress-panel" class="mt-8 hidden">
+            <h2 class="text-2xl font-semibold text-[var(--text-primary)] mb-4">Creating Your Playlist...</h2>
+
+            <!-- Step 1: Keywords -->
+            <div id="step-1" class="pipeline-step rounded-md mb-2 opacity-50">
+                <div class="step-icon waiting">1</div>
+                <div class="flex-grow">
+                    <div class="font-semibold text-[var(--text-primary)]">Analysing Keywords</div>
+                    <div class="step-content text-sm text-[var(--text-secondary)]"></div>
+                </div>
+                <div class="step-status text-[var(--text-muted)]">Waiting</div>
+            </div>
+
+            <!-- Step 2: Mood -->
+            <div id="step-2" class="pipeline-step rounded-md mb-2 opacity-50">
+                <div class="step-icon waiting">2</div>
+                <div class="flex-grow">
+                    <div class="font-semibold text-[var(--text-primary)]">Crafting Mood</div>
+                    <div class="step-content text-sm text-[var(--text-secondary)]"></div>
+                </div>
+                <div class="step-status text-[var(--text-muted)]">Waiting</div>
+            </div>
+
+            <!-- Step 3: Tracks -->
+            <div id="step-3" class="pipeline-step rounded-md mb-2 opacity-50">
+                <div class="step-icon waiting">3</div>
+                <div class="flex-grow">
+                    <div class="font-semibold text-[var(--text-primary)]">Selecting Tracks</div>
+                    <div class="step-content text-sm text-[var(--text-secondary)]">
+                        <div class="playlist-title font-medium"></div>
+                        <ul class="track-list mt-1 space-y-1"></ul>
+                    </div>
+                </div>
+                <div class="step-status text-[var(--text-muted)]">Waiting</div>
+            </div>
+
+            <!-- Step 4: Spotify -->
+            <div id="step-4" class="pipeline-step rounded-md mb-2 opacity-50">
+                <div class="step-icon waiting">4</div>
+                <div class="flex-grow">
+                    <div class="font-semibold text-[var(--text-primary)]">Creating Spotify Playlist</div>
+                    <div class="step-content text-sm text-[var(--text-secondary)]">
+                        <a class="spotify-link text-[var(--accent-primary)] underline hidden" href="#" target="_blank"></a>
+                    </div>
+                </div>
+                <div class="step-status text-[var(--text-muted)]">Waiting</div>
+            </div>
+
+            <!-- Step 5: Email -->
+            <div id="step-5" class="pipeline-step rounded-md mb-2 opacity-50">
+                <div class="step-icon waiting">5</div>
+                <div class="flex-grow">
+                    <div class="font-semibold text-[var(--text-primary)]">Sending Email</div>
+                    <div class="step-content text-sm text-[var(--text-secondary)]"></div>
+                </div>
+                <div class="step-status text-[var(--text-muted)]">Waiting</div>
+            </div>
+
+            <!-- Result Panel (shown when complete) -->
+            <div id="result-panel" class="result-card hidden mt-6">
+                <h3 class="text-xl font-bold text-[var(--accent-primary)] mb-2">Your Playlist is Ready!</h3>
+                <p id="result-title" class="text-lg text-[var(--text-primary)] mb-4"></p>
+                <a
+                    id="spotify-link"
+                    href="#"
+                    target="_blank"
+                    class="btn-neon inline-flex items-center gap-2 py-3 px-6 rounded-full"
+                >
+                    <img src="{{ url_for_static_asset('static', 'images/spotify_logo.svg') }}" alt="Spotify" class="w-6 h-6">
+                    Open in Spotify
+                </a>
+            </div>
+
+            <!-- Error Panel (shown on error) -->
+            <div id="error-panel" class="error-card hidden mt-6">
+                <h3 class="text-xl font-bold text-[var(--state-error)] mb-2">Something went wrong</h3>
+                <p id="error-message" class="text-[var(--text-primary)]"></p>
+                <button
+                    onclick="resetForm()"
+                    class="mt-4 bg-[var(--state-error)] hover:opacity-90 text-[var(--text-primary)] font-bold py-2 px-4 rounded-md transition-all duration-200"
+                >
+                    Try Again
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="mt-8 text-center text-[var(--text-secondary)] text-sm">
+        <p>Powered by GPT + Spotify</p>
+    </div>
 </div>
+
+<script>
+    let selectedPresetId = null;
+
+    function selectPreset(presetId) {
+        // Clear any custom keywords
+        document.getElementById('custom-keywords').value = '';
+
+        // Remove selection from all presets
+        document.querySelectorAll('.preset-card').forEach(card => {
+            card.classList.remove('selected');
+        });
+
+        // Select the clicked preset
+        const selectedCard = document.querySelector(`[data-preset-id="${presetId}"]`);
+        if (selectedCard) {
+            selectedCard.classList.add('selected');
+        }
+
+        selectedPresetId = presetId;
+    }
+
+    function resetForm() {
+        // Hide progress and result panels
+        document.getElementById('progress-panel').classList.add('hidden');
+        document.getElementById('result-panel').classList.add('hidden');
+        document.getElementById('error-panel').classList.add('hidden');
+
+        // Reset steps
+        resetSteps();
+
+        // Re-enable generate button
+        document.getElementById('generate-btn').disabled = false;
+
+        // Clear selection
+        selectedPresetId = null;
+        document.querySelectorAll('.preset-card').forEach(card => {
+            card.classList.remove('selected');
+        });
+    }
+
+    function resetSteps() {
+        document.querySelectorAll('.pipeline-step').forEach(step => {
+            step.classList.remove('opacity-100');
+            step.classList.add('opacity-50');
+
+            const icon = step.querySelector('.step-icon');
+            icon.classList.remove('processing', 'complete');
+            icon.classList.add('waiting');
+
+            const content = step.querySelector('.step-content');
+            // Clear text nodes but preserve structure
+            const textNodes = Array.from(content.childNodes).filter(n => n.nodeType === Node.TEXT_NODE);
+            textNodes.forEach(n => n.textContent = '');
+
+            // Clear track list if present
+            const trackList = content.querySelector('.track-list');
+            if (trackList) {
+                trackList.replaceChildren();
+            }
+
+            // Clear playlist title if present
+            const playlistTitle = content.querySelector('.playlist-title');
+            if (playlistTitle) {
+                playlistTitle.textContent = '';
+            }
+
+            // Hide spotify link if present
+            const spotifyLink = content.querySelector('.spotify-link');
+            if (spotifyLink) {
+                spotifyLink.classList.add('hidden');
+                spotifyLink.textContent = '';
+                spotifyLink.href = '#';
+            }
+
+            const statusEl = step.querySelector('.step-status');
+            statusEl.textContent = 'Waiting';
+        });
+    }
+
+    async function startGeneration() {
+        const email = document.getElementById('email-input').value;
+        const customKeywords = document.getElementById('custom-keywords').value;
+
+        // Validate input
+        if (!selectedPresetId && !customKeywords.trim()) {
+            alert('Please select a preset or enter custom keywords');
+            return;
+        }
+
+        // Disable button and show progress
+        document.getElementById('generate-btn').disabled = true;
+        document.getElementById('progress-panel').classList.remove('hidden');
+        document.getElementById('result-panel').classList.add('hidden');
+        document.getElementById('error-panel').classList.add('hidden');
+
+        // Reset steps
+        resetSteps();
+
+        // Build form data
+        const formData = new FormData();
+        if (email) formData.append('email', email);
+        if (selectedPresetId) {
+            formData.append('preset_id', selectedPresetId);
+        } else {
+            formData.append('keywords', customKeywords);
+        }
+
+        try {
+            // Start generation
+            const response = await fetch('/generate', {
+                method: 'POST',
+                body: formData
+            });
+            const data = await response.json();
+
+            if (data.error) {
+                showError(data.error);
+                return;
+            }
+
+            // Connect to SSE
+            const eventSource = new EventSource('/generate/' + data.request_id + '/status');
+
+            eventSource.onmessage = (event) => {
+                const eventData = JSON.parse(event.data);
+                handleSSEEvent(eventData);
+
+                // Close connection when done or error
+                if (eventData.status === 'done' || eventData.status === 'error') {
+                    eventSource.close();
+                }
+            };
+
+            eventSource.onerror = () => {
+                eventSource.close();
+                showError('Connection lost. Please try again.');
+            };
+
+        } catch (error) {
+            showError('Failed to start generation: ' + error.message);
+        }
+    }
+
+    function handleSSEEvent(eventData) {
+        const step = eventData.step;
+        const status = eventData.status;
+        const message = eventData.message;
+        const data = eventData.data;
+
+        if (status === 'error') {
+            showError(message);
+            return;
+        }
+
+        if (status === 'done') {
+            // Show result
+            document.getElementById('result-panel').classList.remove('hidden');
+            document.getElementById('result-title').textContent = data.title;
+            document.getElementById('spotify-link').href = data.url;
+            document.getElementById('generate-btn').disabled = false;
+            return;
+        }
+
+        const stepElement = document.getElementById('step-' + step);
+        if (!stepElement) return;
+
+        // Update step appearance
+        stepElement.classList.remove('opacity-50');
+        stepElement.classList.add('opacity-100');
+
+        const icon = stepElement.querySelector('.step-icon');
+        const content = stepElement.querySelector('.step-content');
+        const statusEl = stepElement.querySelector('.step-status');
+
+        if (status === 'processing') {
+            icon.classList.remove('waiting', 'complete');
+            icon.classList.add('processing');
+            statusEl.textContent = 'In Progress';
+        } else if (status === 'complete' || status === 'skipped') {
+            icon.classList.remove('waiting', 'processing');
+            icon.classList.add('complete');
+            statusEl.textContent = status === 'skipped' ? 'Skipped' : 'Complete';
+        }
+
+        // Update content based on step data (using safe DOM methods)
+        if (data) {
+            if (step === 1 && data.keywords) {
+                // Find or create text content for keywords
+                let textNode = Array.from(content.childNodes).find(n => n.nodeType === Node.TEXT_NODE);
+                if (!textNode) {
+                    textNode = document.createTextNode('');
+                    content.insertBefore(textNode, content.firstChild);
+                }
+                textNode.textContent = 'Keywords: ' + data.keywords.join(', ');
+            } else if (step === 2 && data.mood) {
+                let textNode = Array.from(content.childNodes).find(n => n.nodeType === Node.TEXT_NODE);
+                if (!textNode) {
+                    textNode = document.createTextNode('');
+                    content.insertBefore(textNode, content.firstChild);
+                }
+                textNode.textContent = data.mood;
+            } else if (step === 3 && data.playlist) {
+                const tracks = data.playlist.tracks || [];
+                const playlistTitle = content.querySelector('.playlist-title');
+                const trackList = content.querySelector('.track-list');
+
+                if (playlistTitle) {
+                    playlistTitle.textContent = data.playlist.playlist_title;
+                }
+
+                if (trackList) {
+                    trackList.replaceChildren(); // Clear existing
+                    const tracksToShow = tracks.slice(0, 5);
+                    tracksToShow.forEach(track => {
+                        const li = document.createElement('li');
+                        li.textContent = (track.title || track.song) + ' - ' + track.artist;
+                        trackList.appendChild(li);
+                    });
+                    if (tracks.length > 5) {
+                        const li = document.createElement('li');
+                        li.textContent = '...and ' + (tracks.length - 5) + ' more';
+                        trackList.appendChild(li);
+                    }
+                }
+            } else if (step === 4 && data.url) {
+                const spotifyLink = content.querySelector('.spotify-link');
+                if (spotifyLink) {
+                    spotifyLink.textContent = data.title;
+                    spotifyLink.href = data.url;
+                    spotifyLink.classList.remove('hidden');
+                }
+            }
+        }
+    }
+
+    function showError(message) {
+        document.getElementById('error-panel').classList.remove('hidden');
+        document.getElementById('error-message').textContent = message;
+        document.getElementById('generate-btn').disabled = false;
+    }
+
+    // Clear preset selection when typing custom keywords
+    document.getElementById('custom-keywords').addEventListener('input', function() {
+        if (this.value.trim()) {
+            selectedPresetId = null;
+            document.querySelectorAll('.preset-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+        }
+    });
+</script>
 
 {% endblock content %}
