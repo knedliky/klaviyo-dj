@@ -2,26 +2,26 @@
 
 {% block content %}
 
-<div id="showcase" class="min-h-screen bg-[var(--bg-primary)] px-4 py-6 flex flex-col">
+<div id="showcase" class="min-h-screen bg-[var(--bg-primary)] flex flex-col items-center justify-center px-6 py-12">
 
-    <!-- Compact Hero -->
-    <header class="text-center mb-6">
-        <h1 class="text-2xl font-display text-[var(--accent-primary)] text-glow tracking-wide">DJ Showcase</h1>
-        <p class="text-sm text-[var(--text-secondary)] mt-1 max-w-lg mx-auto">
-            AI-powered playlist generation. Choose a mood or describe your own.
-        </p>
-    </header>
+    <!-- Centred Container -->
+    <div class="w-full max-w-xl">
 
-    <!-- Main Content -->
-    <main class="flex-1 flex flex-col max-w-3xl mx-auto w-full">
+        <!-- Hero -->
+        <header class="text-center mb-10">
+            <h1 class="text-3xl font-display text-[var(--accent-primary)] text-glow tracking-wider mb-3">DJ Showcase</h1>
+            <p class="text-sm text-[var(--text-secondary)]">
+                AI-powered playlist generation. Choose a mood or describe your own.
+            </p>
+        </header>
 
-        <!-- Two-column layout: Presets + Custom Input -->
-        <div class="card-glass p-4 mb-4">
+        <!-- Main Card -->
+        <div class="card-glass p-6">
 
             <!-- Presets Section -->
-            <div class="mb-4">
-                <h2 class="section-title">Select a Mood</h2>
-                <div id="preset-grid" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2">
+            <section class="mb-6">
+                <h2 class="section-title mb-3">Select a Mood</h2>
+                <div id="preset-grid" class="grid grid-cols-2 sm:grid-cols-3 gap-3">
                     {% for preset in presets %}
                     <button
                         type="button"
@@ -30,7 +30,7 @@
                         onclick="selectPreset('{{ preset.id }}')"
                     >
                         <div class="preset-name">{{ preset.name }}</div>
-                        <div class="preset-keywords">
+                        <div class="preset-keywords mt-1">
                             {% for keyword in preset.keywords[:2] %}
                             <span class="keyword-pill">{{ keyword }}</span>
                             {% endfor %}
@@ -38,51 +38,51 @@
                     </button>
                     {% endfor %}
                 </div>
-            </div>
+            </section>
 
             <!-- Divider -->
-            <div class="divider mb-4">
+            <div class="divider my-6">
                 <span class="divider-text">or</span>
             </div>
 
             <!-- Custom Keywords -->
-            <div class="mb-4">
-                <h2 class="section-title">Describe Your Mood</h2>
+            <section class="mb-5">
+                <h2 class="section-title mb-2">Describe Your Mood</h2>
                 <input
                     type="text"
                     id="custom-keywords"
                     class="input-field"
                     placeholder="calm, acoustic, morning, peaceful..."
                 >
-            </div>
+            </section>
 
-            <!-- Email (compact) -->
-            <div class="mb-4">
-                <label class="section-title" for="email-input">Email (optional)</label>
+            <!-- Email -->
+            <section class="mb-6">
+                <label class="section-title mb-2 block" for="email-input">Email (optional)</label>
                 <input
                     type="email"
                     id="email-input"
                     class="input-field"
                     placeholder="your@email.com"
                 >
-            </div>
+            </section>
 
             <!-- Generate Button -->
             <button
                 id="generate-btn"
                 onclick="startGeneration()"
-                class="btn-neon w-full"
+                class="btn-neon w-full py-3"
             >
                 Generate Playlist
             </button>
         </div>
 
         <!-- Progress Panel (hidden initially) -->
-        <div id="progress-panel" class="card-glass p-4 hidden">
-            <h2 class="section-title mb-3">Pipeline</h2>
+        <div id="progress-panel" class="card-glass p-6 mt-4 hidden">
+            <h2 class="section-title mb-4">Pipeline</h2>
 
             <!-- Pipeline Steps -->
-            <div class="space-y-0">
+            <div>
                 <!-- Step 1: Keywords -->
                 <div id="step-1" class="pipeline-step opacity-50">
                     <div class="step-icon waiting">1</div>
@@ -140,17 +140,17 @@
             </div>
 
             <!-- Result Panel -->
-            <div id="result-panel" class="result-card hidden mt-4">
-                <div class="flex items-center justify-between">
+            <div id="result-panel" class="result-card hidden mt-5">
+                <div class="flex items-center justify-between gap-4">
                     <div>
                         <h3 class="text-sm font-semibold text-[var(--accent-primary)]">Playlist Ready</h3>
-                        <p id="result-title" class="text-sm text-[var(--text-primary)]"></p>
+                        <p id="result-title" class="text-sm text-[var(--text-primary)] mt-1"></p>
                     </div>
                     <a
                         id="spotify-link"
                         href="#"
                         target="_blank"
-                        class="btn-neon text-sm py-2 px-4"
+                        class="btn-neon text-sm py-2 px-4 whitespace-nowrap"
                     >
                         Open in Spotify
                     </a>
@@ -158,18 +158,19 @@
             </div>
 
             <!-- Error Panel -->
-            <div id="error-panel" class="error-card hidden mt-4">
+            <div id="error-panel" class="error-card hidden mt-5">
                 <h3 class="text-sm font-semibold text-[var(--state-error)]">Error</h3>
-                <p id="error-message" class="text-sm text-[var(--text-primary)]"></p>
-                <button onclick="resetForm()" class="btn-ghost mt-2 text-sm">Try Again</button>
+                <p id="error-message" class="text-sm text-[var(--text-primary)] mt-1"></p>
+                <button onclick="resetForm()" class="btn-ghost mt-3 text-sm">Try Again</button>
             </div>
         </div>
-    </main>
 
-    <!-- Footer -->
-    <footer class="text-center mt-4">
-        <p class="text-xs text-[var(--text-muted)] font-mono">GPT + Spotify</p>
-    </footer>
+        <!-- Footer -->
+        <footer class="text-center mt-8">
+            <p class="text-xs text-[var(--text-muted)] font-mono">GPT + Spotify</p>
+        </footer>
+
+    </div><!-- end centred container -->
 </div>
 
 <script>
