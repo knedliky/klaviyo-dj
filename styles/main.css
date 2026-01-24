@@ -1,3 +1,184 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+:root {
+  /* Backgrounds */
+  --bg-primary: #121212;
+  --bg-surface: #1E1E1E;
+  --bg-elevated: #2A2A2A;
+  --bg-glass: rgba(30, 30, 30, 0.8);
+
+  /* Text */
+  --text-primary: #F5F5F5;
+  --text-secondary: #A0A0A0;
+  --text-muted: #666666;
+
+  /* Accents */
+  --accent-primary: #39FF14;
+  --accent-secondary: #9D4EDD;
+
+  /* Borders */
+  --border-default: rgba(255, 255, 255, 0.1);
+  --border-hover: rgba(255, 255, 255, 0.2);
+
+  /* States */
+  --state-success: #39FF14;
+  --state-processing: #F59E0B;
+  --state-error: #EF4444;
+  --state-waiting: #666666;
+
+  /* Glows */
+  --glow-green: 0 0 20px rgba(57, 255, 20, 0.4);
+  --glow-green-subtle: 0 0 10px rgba(57, 255, 20, 0.2);
+  --glow-green-intense: 0 0 30px rgba(57, 255, 20, 0.6);
+}
+
+@layer base {
+  body {
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+  }
+}
+
+@layer components {
+  /* Glassmorphism containers */
+  .card-glass {
+    background-color: var(--bg-glass);
+    backdrop-filter: blur(12px);
+    border: 1px solid var(--border-default);
+    border-radius: 1rem;
+  }
+
+  /* Primary CTA button */
+  .btn-neon {
+    background-color: var(--accent-primary);
+    color: var(--bg-primary);
+    padding: 0.75rem 2rem;
+    border-radius: 0.5rem;
+    font-weight: 600;
+    transition: all 0.2s ease-in-out;
+  }
+
+  .btn-neon:hover {
+    box-shadow: var(--glow-green);
+    transform: translateY(-2px);
+  }
+
+  /* Mood preset cards */
+  .preset-card {
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border-default);
+    border-radius: 1rem;
+    padding: 1.5rem;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+  }
+
+  .preset-card:hover {
+    background-color: var(--bg-elevated);
+    border-color: var(--border-hover);
+  }
+
+  .preset-card.selected {
+    border-color: var(--accent-primary);
+    box-shadow: var(--glow-green-subtle);
+  }
+
+  /* Pipeline step container */
+  .pipeline-step {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+  }
+
+  /* Base step icon */
+  .step-icon {
+    width: 3rem;
+    height: 3rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid var(--border-default);
+    transition: all 0.3s ease-in-out;
+  }
+
+  /* Step states */
+  .step-icon.waiting {
+    background-color: var(--bg-surface);
+    border-color: var(--state-waiting);
+    color: var(--text-muted);
+  }
+
+  .step-icon.processing {
+    background-color: var(--state-processing);
+    border-color: var(--state-processing);
+    color: var(--bg-primary);
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
+  .step-icon.complete {
+    background-color: var(--state-success);
+    border-color: var(--state-success);
+    color: var(--bg-primary);
+  }
+
+  .step-icon.complete::after {
+    content: "✓";
+    font-size: 1.5rem;
+    font-weight: bold;
+  }
+
+  /* Dark input fields */
+  .input-field {
+    background-color: var(--bg-surface);
+    color: var(--text-primary);
+    border: 1px solid var(--border-default);
+    border-radius: 0.5rem;
+    padding: 0.75rem 1rem;
+    transition: all 0.2s ease-in-out;
+  }
+
+  .input-field:focus {
+    outline: none;
+    border-color: var(--accent-primary);
+    box-shadow: var(--glow-green-subtle);
+  }
+
+  .input-field::placeholder {
+    color: var(--text-muted);
+  }
+
+  /* Monospace keyword tags */
+  .keyword-pill {
+    background-color: var(--bg-elevated);
+    color: var(--accent-primary);
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 0.875rem;
+    padding: 0.25rem 0.75rem;
+    border-radius: 0.375rem;
+    display: inline-block;
+  }
+
+  /* Success state container */
+  .result-card {
+    background-color: var(--bg-glass);
+    backdrop-filter: blur(12px);
+    border: 1px solid var(--accent-primary);
+    border-radius: 1rem;
+    padding: 2rem;
+    box-shadow: var(--glow-green-subtle);
+  }
+
+  /* Error state container */
+  .error-card {
+    background-color: var(--bg-glass);
+    backdrop-filter: blur(12px);
+    border: 1px solid var(--state-error);
+    border-radius: 1rem;
+    padding: 2rem;
+    box-shadow: 0 0 20px rgba(239, 68, 68, 0.3);
+  }
+}
