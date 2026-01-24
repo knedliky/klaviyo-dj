@@ -1,13 +1,29 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Orbitron:wght@500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
+  /* Typography */
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  --font-display: 'Orbitron', var(--font-sans);
+
+  /* Font sizes */
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.25rem;
+  --text-2xl: 1.5rem;
+  --text-3xl: 1.875rem;
+
   /* Backgrounds */
-  --bg-primary: #121212;
-  --bg-surface: #1E1E1E;
-  --bg-elevated: #2A2A2A;
-  --bg-glass: rgba(30, 30, 30, 0.8);
+  --bg-primary: #0a0a0a;
+  --bg-surface: #141414;
+  --bg-elevated: #1a1a1a;
+  --bg-glass: rgba(20, 20, 20, 0.85);
 
   /* Text */
   --text-primary: #F5F5F5;
@@ -19,8 +35,8 @@
   --accent-secondary: #9D4EDD;
 
   /* Borders */
-  --border-default: rgba(255, 255, 255, 0.1);
-  --border-hover: rgba(255, 255, 255, 0.2);
+  --border-default: rgba(255, 255, 255, 0.08);
+  --border-hover: rgba(255, 255, 255, 0.15);
 
   /* States */
   --state-success: #39FF14;
@@ -32,113 +48,126 @@
   --glow-green: 0 0 20px rgba(57, 255, 20, 0.4);
   --glow-green-subtle: 0 0 10px rgba(57, 255, 20, 0.2);
   --glow-green-intense: 0 0 30px rgba(57, 255, 20, 0.6);
+  --glow-purple: 0 0 20px rgba(157, 78, 221, 0.4);
+
+  /* Spacing */
+  --space-xs: 0.25rem;
+  --space-sm: 0.5rem;
+  --space-md: 1rem;
+  --space-lg: 1.5rem;
+  --space-xl: 2rem;
 }
 
 @layer base {
   body {
     background-color: var(--bg-primary);
     color: var(--text-primary);
+    font-family: var(--font-sans);
+    font-size: var(--text-base);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-display);
+    font-weight: 600;
+    letter-spacing: 0.02em;
+  }
+
+  code, pre, .mono {
+    font-family: var(--font-mono);
   }
 }
 
 @layer components {
+  /* ============================================
+     ATOMS: Base building blocks
+     ============================================ */
+
   /* Glassmorphism containers */
   .card-glass {
     background-color: var(--bg-glass);
-    backdrop-filter: blur(12px);
+    backdrop-filter: blur(16px);
     border: 1px solid var(--border-default);
-    border-radius: 1rem;
+    border-radius: 0.75rem;
   }
 
-  /* Primary CTA button */
+  /* Primary CTA button - neon glow */
   .btn-neon {
     background-color: var(--accent-primary);
     color: var(--bg-primary);
-    padding: 0.75rem 2rem;
-    border-radius: 0.5rem;
+    font-family: var(--font-sans);
     font-weight: 600;
+    font-size: var(--text-sm);
+    padding: 0.625rem 1.5rem;
+    border-radius: 0.375rem;
+    border: none;
+    cursor: pointer;
     transition: all 0.2s ease-in-out;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
   }
 
   .btn-neon:hover {
     box-shadow: var(--glow-green);
-    transform: translateY(-2px);
+    transform: translateY(-1px);
   }
 
-  /* Mood preset cards */
-  .preset-card {
-    background-color: var(--bg-surface);
+  .btn-neon:active {
+    transform: translateY(0);
+  }
+
+  .btn-neon:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+  }
+
+  /* Secondary/ghost button */
+  .btn-ghost {
+    background-color: transparent;
+    color: var(--text-primary);
+    font-family: var(--font-sans);
+    font-weight: 500;
+    font-size: var(--text-sm);
+    padding: 0.5rem 1rem;
     border: 1px solid var(--border-default);
-    border-radius: 1rem;
-    padding: 1.5rem;
+    border-radius: 0.375rem;
     cursor: pointer;
     transition: all 0.2s ease-in-out;
   }
 
-  .preset-card:hover {
-    background-color: var(--bg-elevated);
-    border-color: var(--border-hover);
-  }
-
-  .preset-card.selected {
+  .btn-ghost:hover {
     border-color: var(--accent-primary);
-    box-shadow: var(--glow-green-subtle);
+    color: var(--accent-primary);
   }
 
-  /* Pipeline step container */
-  .pipeline-step {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    padding: 1rem;
-  }
-
-  /* Base step icon */
-  .step-icon {
-    width: 3rem;
-    height: 3rem;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: 2px solid var(--border-default);
-    transition: all 0.3s ease-in-out;
-  }
-
-  /* Step states */
-  .step-icon.waiting {
-    background-color: var(--bg-surface);
-    border-color: var(--state-waiting);
-    color: var(--text-muted);
-  }
-
-  .step-icon.processing {
-    background-color: var(--state-processing);
-    border-color: var(--state-processing);
-    color: var(--bg-primary);
-    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-  }
-
-  .step-icon.complete {
-    background-color: var(--state-success);
-    border-color: var(--state-success);
-    color: var(--bg-primary);
-  }
-
-  .step-icon.complete::after {
-    content: "✓";
-    font-size: 1.5rem;
-    font-weight: bold;
+  /* Monospace keyword tags */
+  .keyword-pill {
+    background-color: transparent;
+    color: var(--accent-primary);
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    font-weight: 500;
+    padding: 0.125rem 0.5rem;
+    border: 1px solid var(--border-default);
+    border-radius: 0.25rem;
+    display: inline-block;
   }
 
   /* Dark input fields */
   .input-field {
     background-color: var(--bg-surface);
     color: var(--text-primary);
+    font-family: var(--font-sans);
+    font-size: var(--text-sm);
     border: 1px solid var(--border-default);
-    border-radius: 0.5rem;
-    padding: 0.75rem 1rem;
+    border-radius: 0.375rem;
+    padding: 0.5rem 0.75rem;
     transition: all 0.2s ease-in-out;
+    width: 100%;
   }
 
   .input-field:focus {
@@ -149,36 +178,218 @@
 
   .input-field::placeholder {
     color: var(--text-muted);
+    font-size: var(--text-sm);
   }
 
-  /* Monospace keyword tags */
-  .keyword-pill {
+  /* ============================================
+     MOLECULES: Composed components
+     ============================================ */
+
+  /* Compact mood preset cards */
+  .preset-card {
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border-default);
+    border-radius: 0.5rem;
+    padding: 0.75rem 1rem;
+    cursor: pointer;
+    transition: all 0.15s ease-in-out;
+  }
+
+  .preset-card:hover {
     background-color: var(--bg-elevated);
-    color: var(--accent-primary);
-    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-    font-size: 0.875rem;
-    padding: 0.25rem 0.75rem;
-    border-radius: 0.375rem;
-    display: inline-block;
+    border-color: var(--border-hover);
   }
 
-  /* Success state container */
+  .preset-card.selected {
+    border-color: var(--accent-primary);
+    box-shadow: var(--glow-green-subtle);
+    background-color: var(--bg-elevated);
+  }
+
+  .preset-card .preset-name {
+    font-family: var(--font-sans);
+    font-weight: 600;
+    font-size: var(--text-sm);
+    color: var(--text-primary);
+    margin-bottom: 0.25rem;
+  }
+
+  .preset-card .preset-keywords {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+  }
+
+  /* Pipeline step container */
+  .pipeline-step {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border-default);
+  }
+
+  .pipeline-step:last-child {
+    border-bottom: none;
+  }
+
+  /* Step icon - smaller and cleaner */
+  .step-icon {
+    width: 1.75rem;
+    height: 1.75rem;
+    min-width: 1.75rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    font-weight: 600;
+    border: 2px solid var(--border-default);
+    transition: all 0.2s ease-in-out;
+  }
+
+  .step-icon.waiting {
+    background-color: transparent;
+    border-color: var(--state-waiting);
+    color: var(--text-muted);
+  }
+
+  .step-icon.processing {
+    background-color: var(--state-processing);
+    border-color: var(--state-processing);
+    color: var(--bg-primary);
+    animation: pulse 1.5s ease-in-out infinite;
+  }
+
+  .step-icon.complete {
+    background-color: var(--state-success);
+    border-color: var(--state-success);
+    color: var(--bg-primary);
+  }
+
+  .step-icon.complete::after {
+    content: "";
+  }
+
+  /* Step content */
+  .step-content {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .step-title {
+    font-family: var(--font-sans);
+    font-weight: 500;
+    font-size: var(--text-sm);
+    color: var(--text-primary);
+  }
+
+  .step-detail {
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    color: var(--text-secondary);
+    margin-top: 0.125rem;
+  }
+
+  /* Step status badge */
+  .step-status {
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  /* ============================================
+     ORGANISMS: Complex UI sections
+     ============================================ */
+
+  /* Result panel */
   .result-card {
     background-color: var(--bg-glass);
-    backdrop-filter: blur(12px);
+    backdrop-filter: blur(16px);
     border: 1px solid var(--accent-primary);
-    border-radius: 1rem;
-    padding: 2rem;
+    border-radius: 0.5rem;
+    padding: 1rem;
     box-shadow: var(--glow-green-subtle);
   }
 
-  /* Error state container */
+  /* Error panel */
   .error-card {
     background-color: var(--bg-glass);
-    backdrop-filter: blur(12px);
+    backdrop-filter: blur(16px);
     border: 1px solid var(--state-error);
-    border-radius: 1rem;
-    padding: 2rem;
-    box-shadow: 0 0 20px rgba(239, 68, 68, 0.3);
+    border-radius: 0.5rem;
+    padding: 1rem;
+    box-shadow: 0 0 15px rgba(239, 68, 68, 0.2);
+  }
+
+  /* Section headers */
+  .section-title {
+    font-family: var(--font-display);
+    font-size: var(--text-sm);
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 0.75rem;
+  }
+
+  /* Divider with text */
+  .divider {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .divider::before,
+  .divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background-color: var(--border-default);
+  }
+
+  .divider-text {
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+
+  /* ============================================
+     UTILITIES
+     ============================================ */
+
+  .font-display {
+    font-family: var(--font-display);
+  }
+
+  .font-mono {
+    font-family: var(--font-mono);
+  }
+
+  .text-glow {
+    text-shadow: 0 0 10px currentColor;
+  }
+
+  .neon-border {
+    border: 1px solid var(--accent-primary);
+    box-shadow: var(--glow-green-subtle);
+  }
+}
+
+/* ============================================
+   ANIMATIONS
+   ============================================ */
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
   }
 }

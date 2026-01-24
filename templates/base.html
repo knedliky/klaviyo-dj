@@ -4,14 +4,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Preconnect to Google Fonts for faster loading -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <!-- Google Fonts: Inter, JetBrains Mono, Orbitron -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Orbitron:wght@500;600;700&display=swap" rel="stylesheet">
+
     <link href="{{ url_for_static_asset('static', 'css/main.css') }}" rel="stylesheet">
     <link href="{{ url_for_static_asset('static', 'css/spinner.css') }}" rel="stylesheet">
     <script src="{{ url_for_static_asset('static', 'scripts/htmx.js') }}"></script>
     <script src="{{ url_for_static_asset('static', 'scripts/functions.js') }}"></script>
-    <title>{{ title }}</title>
+    <title>{% block title %}DJ Showcase{% endblock %}</title>
 </head>
 
-<body class="overflow-hidden">
+<body class="overflow-auto">
 
     {% block content %}
 
