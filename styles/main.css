@@ -410,6 +410,153 @@
      CUSTOM FORM COMPONENTS
      ============================================ */
 
+  /* Form container */
+  .form-container {
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border-default);
+    border-radius: 0.75rem;
+    padding: 1.5rem;
+  }
+
+  /* Form section spacing */
+  .form-section {
+    margin-bottom: 1.5rem;
+  }
+
+  .form-section:last-child {
+    margin-bottom: 0;
+  }
+
+  /* Form labels */
+  .form-label {
+    display: block;
+    font-family: var(--font-sans);
+    font-weight: 500;
+    font-size: var(--text-sm);
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+  }
+
+  .form-optional {
+    font-weight: 400;
+    color: var(--text-muted);
+    font-size: var(--text-xs);
+  }
+
+  /* Form inputs */
+  .form-input {
+    background-color: var(--bg-elevated);
+    color: var(--text-primary);
+    font-family: var(--font-sans);
+    font-size: var(--text-sm);
+    border: 1px solid var(--border-default);
+    border-radius: 0.375rem;
+    padding: 0.625rem 0.75rem;
+    transition: all 0.2s ease-in-out;
+    width: 100%;
+  }
+
+  .form-input:focus {
+    outline: none;
+    border-color: var(--accent-primary);
+    box-shadow: var(--glow-green-subtle);
+  }
+
+  .form-input::placeholder {
+    color: var(--text-muted);
+    font-size: var(--text-sm);
+  }
+
+  /* Form submit button */
+  .form-submit {
+    background-color: var(--accent-primary);
+    color: var(--bg-primary);
+    font-family: var(--font-sans);
+    font-weight: 600;
+    font-size: var(--text-sm);
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.375rem;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    width: 100%;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .form-submit:hover {
+    box-shadow: var(--glow-green);
+    transform: translateY(-1px);
+  }
+
+  .form-submit:active {
+    transform: translateY(0);
+  }
+
+  .form-submit:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+  }
+
+  /* Form divider */
+  .form-divider {
+    margin: 1.5rem 0;
+  }
+
+  /* Preset list (grid) */
+  .preset-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 0.75rem;
+  }
+
+  @media (max-width: 640px) {
+    .preset-list {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* Preset item (radio button styled as card) */
+  .preset-item {
+    background-color: var(--bg-elevated);
+    border: 1px solid var(--border-default);
+    border-radius: 0.5rem;
+    padding: 0.875rem 1rem;
+    cursor: pointer;
+    transition: all 0.15s ease-in-out;
+    text-align: left;
+    width: 100%;
+  }
+
+  .preset-item:hover {
+    background-color: var(--bg-glass);
+    border-color: var(--border-hover);
+  }
+
+  .preset-item.selected,
+  .preset-item[aria-checked="true"] {
+    border-color: var(--accent-primary);
+    box-shadow: var(--glow-green-subtle);
+    background-color: var(--bg-glass);
+  }
+
+  .preset-name {
+    font-family: var(--font-sans);
+    font-weight: 600;
+    font-size: var(--text-sm);
+    color: var(--text-primary);
+    display: block;
+    margin-bottom: 0.375rem;
+  }
+
+  .preset-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+  }
+
   /* Progressive disclosure toggle button */
   .custom-reveal-button {
     background-color: transparent;
