@@ -447,6 +447,80 @@
             toggleButton.setAttribute('aria-expanded', 'true');
         }
     });
+
+    /**
+     * Set up keyboard navigation for accessibility
+     * - Arrow keys navigate preset radiogroup with roving tabindex
+     * - Enter/Space selects focused preset
+     * - Escape collapses custom section
+     */
+    function setupKeyboardNavigation() {
+        const presetButtons = Array.from(document.querySelectorAll('.preset-item'));
+        const customSection = document.getElementById('custom-input-section');
+        const toggleButton = document.querySelector('.custom-reveal-button');
+
+        // Initialise tabindex: first preset is tabbable, rest are not
+        if (presetButtons.length > 0) {
+            presetButtons[0].setAttribute('tabindex', '0');
+            for (let i = 1; i < presetButtons.length; i++) {
+                presetButtons[i].setAttribute('tabindex', '-1');
+            }
+        }
+
+        // Arrow key navigation for preset radiogroup
+        presetButtons.forEach((button, index) => {
+            button.addEventListener('keydown', (event) => {
+                let targetIndex = -1;
+
+                if (event.key === 'ArrowDown' || event.key === 'ArrowRight') {
+                    event.preventDefault();
+                    // Move to next preset, wrap to first if at end
+                    targetIndex = (index + 1) % presetButtons.length;
+                } else if (event.key === 'ArrowUp' || event.key === 'ArrowLeft') {
+                    event.preventDefault();
+                    // Move to previous preset, wrap to last if at beginning
+                    targetIndex = (index - 1 + presetButtons.length) % presetButtons.length;
+                } else if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    // Select the focused preset
+                    const presetId = button.getAttribute('data-preset-id');
+                    selectPreset(presetId);
+                    return;
+                }
+
+                // If we have a target index, update roving tabindex and focus
+                if (targetIndex >= 0) {
+                    // Remove tabindex from current button
+                    button.setAttribute('tabindex', '-1');
+                    // Set tabindex and focus on target button
+                    presetButtons[targetIndex].setAttribute('tabindex', '0');
+                    presetButtons[targetIndex].focus();
+                }
+            });
+        });
+
+        // Escape key to collapse custom section
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape') {
+                const isExpanded = toggleButton.getAttribute('aria-expanded') === 'true';
+                if (isExpanded) {
+                    event.preventDefault();
+                    customSection.setAttribute('aria-hidden', 'true');
+                    customSection.classList.remove('expanded');
+                    toggleButton.setAttribute('aria-expanded', 'false');
+                    // Return focus to toggle button
+                    toggleButton.focus();
+                }
+            }
+        });
+    }
+
+    // Initialise keyboard navigation when DOM is ready
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', setupKeyboardNavigation);
+    } else {
+        setupKeyboardNavigation();
+    }
 </script>
 
 {% endblock content %}
