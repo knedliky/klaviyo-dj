@@ -1,14 +1,13 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Orbitron:wght@500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
-  /* Typography */
+  /* Typography — two fonts only */
   --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-  --font-display: 'Orbitron', var(--font-sans);
 
   /* Font sizes */
   --text-xs: 0.75rem;
@@ -70,9 +69,8 @@
   }
 
   h1, h2, h3, h4, h5, h6 {
-    font-family: var(--font-display);
+    font-family: var(--font-sans);
     font-weight: 600;
-    letter-spacing: 0.02em;
   }
 
   code, pre, .mono {
@@ -327,13 +325,12 @@
 
   /* Section headers */
   .section-title {
-    font-family: var(--font-display);
-    font-size: var(--text-sm);
-    font-weight: 600;
-    color: var(--text-secondary);
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    font-weight: 500;
+    color: var(--text-muted);
     text-transform: uppercase;
-    letter-spacing: 0.1em;
-    margin-bottom: 0.75rem;
+    letter-spacing: 0.08em;
   }
 
   /* Divider with text */
@@ -362,10 +359,6 @@
   /* ============================================
      UTILITIES
      ============================================ */
-
-  .font-display {
-    font-family: var(--font-display);
-  }
 
   .font-mono {
     font-family: var(--font-mono);
