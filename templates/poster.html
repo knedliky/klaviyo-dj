@@ -15,66 +15,94 @@
             </p>
         </header>
 
-        <!-- Main Card -->
-        <div class="card-glass p-6">
+        <!-- Form Container -->
+        <div class="form-container">
 
-            <!-- Presets Section -->
-            <section class="mb-6">
-                <h2 class="section-title mb-3">Select a Mood</h2>
-                <div id="preset-grid" class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+            <!-- Section 1: Presets -->
+            <section class="form-section">
+                <h2 id="preset-group-label" class="form-label">Select a Mood</h2>
+                <div
+                    id="preset-grid"
+                    class="preset-list"
+                    role="radiogroup"
+                    aria-labelledby="preset-group-label"
+                >
                     {% for preset in presets %}
                     <button
                         type="button"
-                        class="preset-card text-left"
+                        class="preset-item"
+                        role="radio"
+                        aria-checked="false"
                         data-preset-id="{{ preset.id }}"
                         onclick="selectPreset('{{ preset.id }}')"
                     >
-                        <div class="preset-name">{{ preset.name }}</div>
-                        <div class="preset-keywords mt-1">
+                        <span class="preset-name">{{ preset.name }}</span>
+                        <span class="preset-tags">
                             {% for keyword in preset.keywords[:2] %}
                             <span class="keyword-pill">{{ keyword }}</span>
                             {% endfor %}
-                        </div>
+                        </span>
                     </button>
                     {% endfor %}
                 </div>
             </section>
 
-            <!-- Divider -->
-            <div class="divider my-6">
-                <span class="divider-text">or</span>
+            <!-- Progressive Disclosure Button -->
+            <div class="form-divider">
+                <button
+                    type="button"
+                    class="custom-reveal-button"
+                    aria-expanded="false"
+                    aria-controls="custom-input-section"
+                    onclick="toggleCustomSection()"
+                >
+                    Or describe your own mood
+                </button>
             </div>
 
-            <!-- Custom Keywords -->
-            <section class="mb-5">
-                <h2 class="section-title mb-2">Describe Your Mood</h2>
-                <input
-                    type="text"
-                    id="custom-keywords"
-                    class="input-field"
-                    placeholder="calm, acoustic, morning, peaceful..."
-                >
-            </section>
+            <!-- Section 2: Custom Keywords (Hidden by Default) -->
+            <div id="custom-input-section" class="custom-section" aria-hidden="true">
+                <section class="form-section">
+                    <label class="form-label" for="custom-keywords">Describe Your Mood</label>
+                    <input
+                        type="text"
+                        id="custom-keywords"
+                        class="form-input"
+                        placeholder="calm, acoustic, morning, peaceful..."
+                        aria-describedby="custom-keywords-hint"
+                    >
+                    <span id="custom-keywords-hint" class="sr-only">
+                        Enter comma-separated keywords to describe your desired mood
+                    </span>
+                </section>
+            </div>
 
-            <!-- Email -->
-            <section class="mb-6">
-                <label class="section-title mb-2 block" for="email-input">Email (optional)</label>
+            <!-- Section 3: Email -->
+            <section class="form-section">
+                <label class="form-label" for="email-input">Email <span class="form-optional">(optional)</span></label>
                 <input
                     type="email"
                     id="email-input"
-                    class="input-field"
+                    class="form-input"
                     placeholder="your@email.com"
+                    aria-describedby="email-hint"
                 >
+                <span id="email-hint" class="sr-only">
+                    Optional email address to receive your playlist link
+                </span>
             </section>
 
-            <!-- Generate Button -->
-            <button
-                id="generate-btn"
-                onclick="startGeneration()"
-                class="btn-neon w-full py-3"
-            >
-                Generate Playlist
-            </button>
+            <!-- Submit -->
+            <section class="form-section">
+                <button
+                    id="generate-btn"
+                    onclick="startGeneration()"
+                    class="form-submit"
+                >
+                    Generate Playlist
+                </button>
+            </section>
+
         </div>
 
         <!-- Progress Panel (hidden initially) -->
@@ -176,14 +204,35 @@
 <script>
     let selectedPresetId = null;
 
+    function toggleCustomSection() {
+        const customSection = document.getElementById('custom-input-section');
+        const toggleButton = document.querySelector('.custom-reveal-button');
+        const isExpanded = toggleButton.getAttribute('aria-expanded') === 'true';
+
+        if (isExpanded) {
+            customSection.setAttribute('aria-hidden', 'true');
+            customSection.classList.remove('expanded');
+            toggleButton.setAttribute('aria-expanded', 'false');
+        } else {
+            customSection.setAttribute('aria-hidden', 'false');
+            customSection.classList.add('expanded');
+            toggleButton.setAttribute('aria-expanded', 'true');
+        }
+    }
+
     function selectPreset(presetId) {
         document.getElementById('custom-keywords').value = '';
-        document.querySelectorAll('.preset-card').forEach(card => {
+
+        // Update ARIA checked state for all preset buttons
+        document.querySelectorAll('.preset-item').forEach(card => {
             card.classList.remove('selected');
+            card.setAttribute('aria-checked', 'false');
         });
+
         const selectedCard = document.querySelector(`[data-preset-id="${presetId}"]`);
         if (selectedCard) {
             selectedCard.classList.add('selected');
+            selectedCard.setAttribute('aria-checked', 'true');
         }
         selectedPresetId = presetId;
     }
@@ -195,8 +244,11 @@
         resetSteps();
         document.getElementById('generate-btn').disabled = false;
         selectedPresetId = null;
-        document.querySelectorAll('.preset-card').forEach(card => {
+
+        // Reset preset selection and ARIA attributes
+        document.querySelectorAll('.preset-item').forEach(card => {
             card.classList.remove('selected');
+            card.setAttribute('aria-checked', 'false');
         });
     }
 
@@ -375,9 +427,24 @@
     document.getElementById('custom-keywords').addEventListener('input', function() {
         if (this.value.trim()) {
             selectedPresetId = null;
-            document.querySelectorAll('.preset-card').forEach(card => {
+
+            // Deselect all presets and update ARIA
+            document.querySelectorAll('.preset-item').forEach(card => {
                 card.classList.remove('selected');
+                card.setAttribute('aria-checked', 'false');
             });
+        }
+    });
+
+    // Auto-expand custom section when it receives focus
+    document.getElementById('custom-keywords').addEventListener('focus', function() {
+        const customSection = document.getElementById('custom-input-section');
+        const toggleButton = document.querySelector('.custom-reveal-button');
+
+        if (customSection.getAttribute('aria-hidden') === 'true') {
+            customSection.setAttribute('aria-hidden', 'false');
+            customSection.classList.add('expanded');
+            toggleButton.setAttribute('aria-expanded', 'true');
         }
     });
 </script>
