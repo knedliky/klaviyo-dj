@@ -166,6 +166,7 @@
     padding: 0.5rem 0.75rem;
     transition: all 0.2s ease-in-out;
     width: 100%;
+    box-sizing: border-box;
   }
 
   .input-field:focus {
@@ -454,6 +455,7 @@
     padding: 0.625rem 0.75rem;
     transition: all 0.2s ease-in-out;
     width: 100%;
+    box-sizing: border-box;
   }
 
   .form-input:focus {
