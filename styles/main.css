@@ -30,25 +30,25 @@
   --text-secondary: #A0A0A0;
   --text-muted: #666666;
 
-  /* Accents */
-  --accent-primary: #39FF14;
-  --accent-secondary: #9D4EDD;
+  /* Accents — toned down for subtlety */
+  --accent-primary: #4ADE80;
+  --accent-secondary: #A78BFA;
 
   /* Borders */
   --border-default: rgba(255, 255, 255, 0.08);
   --border-hover: rgba(255, 255, 255, 0.15);
 
   /* States */
-  --state-success: #39FF14;
-  --state-processing: #F59E0B;
-  --state-error: #EF4444;
-  --state-waiting: #666666;
+  --state-success: #4ADE80;
+  --state-processing: #FBBF24;
+  --state-error: #F87171;
+  --state-waiting: #6B7280;
 
-  /* Glows */
-  --glow-green: 0 0 20px rgba(57, 255, 20, 0.4);
-  --glow-green-subtle: 0 0 10px rgba(57, 255, 20, 0.2);
-  --glow-green-intense: 0 0 30px rgba(57, 255, 20, 0.6);
-  --glow-purple: 0 0 20px rgba(157, 78, 221, 0.4);
+  /* Glows — subtle, not overwhelming */
+  --glow-green: 0 0 12px rgba(74, 222, 128, 0.25);
+  --glow-green-subtle: 0 0 8px rgba(74, 222, 128, 0.15);
+  --glow-green-intense: 0 0 16px rgba(74, 222, 128, 0.35);
+  --glow-purple: 0 0 12px rgba(167, 139, 250, 0.25);
 
   /* Spacing */
   --space-xs: 0.25rem;
