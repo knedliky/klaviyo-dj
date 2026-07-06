@@ -1,0 +1,19 @@
+# Caddy reverse proxy for local HTTPS development
+# Eliminates Safari's "HTTPS-Only enabled" errors
+#
+# Usage:
+#   1. Install Caddy: brew install caddy
+#   2. Trust the local CA (once): caddy trust
+#   3. Start Litestar: litestar run --debug
+#   4. Start Caddy: caddy run
+#   5. Open: https://localhost
+
+localhost {
+	reverse_proxy 127.0.0.1:8000
+}
+
+# Alternative: custom local domain (no /etc/hosts needed)
+# The .localhost TLD automatically resolves to 127.0.0.1
+dj.localhost {
+	reverse_proxy 127.0.0.1:8000
+}
