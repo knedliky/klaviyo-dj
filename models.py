@@ -1,3 +1,4 @@
+from typing import Literal
 from uuid import UUID
 
 from pydantic import BaseModel, EmailStr
@@ -9,8 +10,18 @@ class User(BaseModel):
     email: EmailStr
 
 
-class Flow(BaseModel):
+class Preset(BaseModel):
+    """A curated mood preset with predefined keywords."""
     id: str
     name: str
+    description: str
     keywords: list[str]
-    sample_playlist_url: str
+    icon: str  # Emoji for UI display
+
+
+class PlaylistRequest(BaseModel):
+    """A request to generate a playlist from keywords."""
+    email: EmailStr
+    keywords: list[str]
+    source: Literal["preset", "custom"]
+    preset_id: str | None = None

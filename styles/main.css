@@ -291,6 +291,19 @@
     margin-top: 0.125rem;
   }
 
+  /* Step 1 sentence and keywords display */
+  .step-sentence {
+    display: block;
+    font-style: italic;
+    color: var(--text-primary);
+    margin-bottom: 0.25rem;
+  }
+
+  .step-keywords {
+    display: block;
+    color: var(--accent-primary);
+  }
+
   /* Step status badge */
   .step-status {
     font-family: var(--font-mono);
@@ -467,6 +480,22 @@
   .form-input::placeholder {
     color: var(--text-muted);
     font-size: var(--text-sm);
+  }
+
+  /* Form textarea - extends form-input with multiline support */
+  .form-textarea {
+    resize: vertical;
+    min-height: 4.5rem;
+    line-height: 1.5;
+  }
+
+  /* Form hint text */
+  .form-hint {
+    font-family: var(--font-sans);
+    font-size: var(--text-xs);
+    color: var(--text-muted);
+    margin-top: 0.5rem;
+    line-height: 1.4;
   }
 
   /* Form submit button */

@@ -1,86 +1,150 @@
-# Klaviyo DJ
+# DJ Showcase
 
-This project is aimed at integrating GPT, Spotify and Klaviyo into one application, where you can curate custom playlists for your customers based on Klaviyo Flows triggered by your most important metrics.
+A portfolio demonstration that uses GPT to craft mood descriptions from keywords, then creates real Spotify playlists with a step-by-step animated reveal of the AI pipeline.
 
-![](dev/klaviyo.png)
+## How It Works
+
+1. **Choose a Mood** — Select from curated presets or enter your own keywords
+2. **Watch the Magic** — See each step of the pipeline animate in real-time:
+   - Keywords are analysed
+   - GPT crafts a mood description
+   - GPT selects tracks that match the mood
+   - Spotify playlist is created live
+   - Email with playlist link (optional)
+3. **Enjoy Your Playlist** — Open directly in Spotify
+
+## Tech Stack
+
+- **Backend**: [Litestar](https://litestar.dev/) (Python async web framework)
+- **Frontend**: HTMX + Jinja2 templates + TailwindCSS
+- **AI**: OpenAI GPT-3.5/4 for mood and playlist generation
+- **Music**: Spotify Web API for playlist creation
+- **Email**: Resend for sending playlist links (optional)
 
 ## Prerequisites
 
-You will need to create accounts for several platforms.
+You will need accounts for:
 
-1. [OpenAI](https://platform.openai.com/): GPT is used to generate moods from your customers favourite items or keywords you specify in order to generate playlists, that are then converted into real Spotify playlists!
-2. [Spotify](https://developer.spotify.com/documentation/web-api): The Web API is used to search the tracks that GPT recommends. If GPT hallucinates, no worries! We will just skip that track.
-3. [Klaviyo](https://developers.klaviyo.com/en/reference/api_overview): Then in order to distribute these playlists to your special customers, you will need to activate your Klaviyo APIs through the developer portal
-
-## Setup
-
-1. In order to test that everything is working, I suggest using a tool such as `ngrok` to tunnel webhook requests from Klaviyo to your local web server before deploying out into the real world.
-2. Set up an `.env` file to store environmental variables for each of the platforms. So you don't accidentally share your Britney Spears playlists, it's also recommended to put your Spotify username here too
-3. Create a Klaviyo Flow that takes a "Playlist Created" metric as a trigger. This will be used to send off emails. In the event payload, you can attach properties to the payload attribute and then use the event metadata to populate the customised emails.
-
-    ``` python
-    "revision": "2023-12-15",
-    event_json = {
-            "data": {
-                "type": "event",
-                "attributes": {
-                    "properties": {
-                        "title": title,
-                        "url": url,
-                        "description": description,
-                    },
-                    "metric": {
-                        "data": {
-                            "type": "metric",
-                            "attributes": {"name": "Playlist Created"},
-                        }
-                    },
-                    "profile": {
-                        "data": {
-                            "type": "profile",
-                            "attributes": {"email": email},
-                        }
-                    },
-                },
-            }
-        }
-    ```
-
-4. Attach a webhook to a Flow that identifies some of your most valued customers, and point it to your production server. __NOTE:__ I haven't figured out a way to relay responses through `ngrok` back to Klaviyo, so Klaviyo will keep on firing webhooks as it doesn't think you are receiving them. This shouldn't happen when using Postman or a production server.
+1. **[OpenAI](https://platform.openai.com/)** — GPT generates mood descriptions and playlist recommendations
+2. **[Spotify Developer](https://developer.spotify.com/)** — Create and populate playlists via the Web API
+3. **[Resend](https://resend.com/)** (Optional) — Send playlist links via email
 
 ## Installation
 
-This is a web server built using [Litestar](https://litestar.dev/) a fast, performant framework for building API servers, using [Jinja](https://jinja.palletsprojects.com/en/3.0.x/templates/) for templating, [TailwindCSS](https://tailwindcss.com/) and [HTMX](https://htmx.org/) for the front-end. Tailwind and Litestar are already contained, you will need to install Python packages from the provided `./requirements.txt` file.
+```bash
+# Install Python dependencies
+pip install -r requirements.txt
 
-1. Install Python requirements using `pip install -r requirements.txt` or something similar.
-2. Spotify has a strange authentication flow. In order to make this run smoothly during operation run the server initially where you will be redirected to a web page to log into your (businesses) Spotify account and accept the scope. As you are now authenticated against this account, this is spotify account will the `USER` that you define in your environmental variables used to make requests and to host playlists.
+# Build Tailwind CSS (if modifying styles)
+tailwindcss -i ./styles/main.css -o ./static/css/main.css --watch
+```
+
+## Environment Variables
+
+Create a `.env` file with the following variables:
+
+```bash
+# OpenAI
+OPENAI_API_KEY=sk-...
+
+# Spotify
+SPOTIPY_CLIENT_ID=your_client_id
+SPOTIPY_CLIENT_SECRET=your_client_secret
+SPOTIFY_USER=your_spotify_username
+
+# Resend (optional — email will be skipped if not set)
+RESEND_API_KEY=re_...
+```
+
+See `.env.example` for a template.
 
 ## Usage
 
-Once you've completed the setup, start the server by running `litestar run --debug` in the console. Navigate to `127.0.0.1:8000/dj` to open the application, where it will populate the mock database with a list of Flows that exist in your Klaviyo account.
+### Quick Start (with HTTPS)
 
-To add keywords to a Flow that will be used by GPT to create a description and then a playlist, click on the plus icon next to the relevant Flow. Automatic is coming soon, where instead of keywords, customer purchase history is used. Imagine you are an eCommerce book store owner, now you can dynamically create playlists for people who have looked at items in your store!
+Using [Caddy](https://caddyserver.com/) for local HTTPS eliminates Safari's "HTTPS-Only" errors:
 
-![](dev/add_keyword.png)
+```bash
+# Install Caddy (macOS)
+brew install caddy
 
-Add some keywords separated by commas to test what kind of mood and playlist the GPT recommends! If you like it you can accept it in order to connect the Flow.
+# Trust Caddy's local CA (one-time, requires sudo)
+caddy trust
 
-![Klaviyo](dev/test_playlist.png)
+# Terminal 1: Start the backend
+litestar run --debug
 
-Now, you should see a send icon to send a test event to your Klaviyo Flow. This will use hardcoded values in the code, but the idea is that you can create an Event Form to create a fully customised Event to test your Webhook through Klaviyo.
+# Terminal 2: Start Caddy reverse proxy
+caddy run
+```
 
-![Alt text](dev/test_event.png)
+Navigate to `https://localhost` to open the showcase.
 
-Testing the event will then follow a flow similar to the one below. Eventually ending up with a customised email, that will make your customers feel the love!
+### Without Caddy
 
-![Alt text](dev/event_architecture.png)
+If you don't need HTTPS (or use Chrome/Firefox without strict HTTPS mode):
 
-![Alt text](dev/email.png)
+```bash
+litestar run --debug
+```
 
-## Extra Documentation
+Navigate to `http://127.0.0.1:8000` to open the showcase.
 
-You can find Python scripts in the [Jupyter Notebook](notebooks/klaviyo_client.ipynb) for easier perusal and line by line testing.
+> **Note**: Safari with "HTTPS-Only" mode enabled will not load HTTP URLs. Use the Caddy setup above or disable HTTPS-Only in Safari settings.
 
-You can find the flow architecture [here](https://app.eraser.io/workspace/gTaeQN7Ub0R4l6eG5oUt?origin=share)
+### First Run: Spotify Authentication
 
-You can find the Figma mock up [here](https://www.figma.com/file/2SR0z813DlVqaLcJPhJjEa/Klaviyo-DJ?type=design&node-id=0%3A1&mode=design&t=vo4dKx9SkfOaPJto-1)
+On first run, you'll be redirected to Spotify to authenticate. This grants the app permission to create playlists on your behalf. The OAuth tokens are cached locally for subsequent runs.
+
+**Important**: In your [Spotify Developer Dashboard](https://developer.spotify.com/dashboard), add `https://localhost/callback` as a redirect URI in your app settings.
+
+## API Endpoints
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/dj` | GET | Main showcase page |
+| `/presets` | GET | List of available mood presets |
+| `/generate` | POST | Start playlist generation (returns request_id) |
+| `/generate/{request_id}/status` | GET | SSE stream of generation progress |
+| `/playlist` | POST | Legacy endpoint for direct playlist generation |
+
+## Presets
+
+The app includes 5 curated mood presets:
+
+| Preset | Keywords |
+|--------|----------|
+| Morning Coffee | calm, acoustic, sunrise, hopeful |
+| Workout Beast | powerful, intense, driving, unstoppable |
+| Rainy Afternoon | melancholy, piano, thoughtful, rain |
+| Summer Road Trip | sunny, freedom, nostalgic, adventure |
+| Late Night Focus | minimal, electronic, ambient, focus |
+
+## Architecture
+
+```
+User Input (Preset/Custom) → GPT Mood → GPT Playlist → Spotify API → Resend Email
+       ↓                        ↓            ↓              ↓
+   [UI Step 1]            [UI Step 2]  [UI Step 3]    [UI Step 4]
+```
+
+The frontend uses Server-Sent Events (SSE) to stream progress updates from the backend, creating a real-time animated reveal of each step in the pipeline.
+
+## Project Structure
+
+```
+klaviyo-dj/
+├── app.py              # Main application and route handlers
+├── models.py           # Pydantic models (Preset, PlaylistRequest)
+├── requirements.txt    # Python dependencies
+├── Caddyfile           # Caddy reverse proxy config for local HTTPS
+├── templates/
+│   ├── base.html       # Base template with head/scripts
+│   └── poster.html     # Main showcase page
+├── static/
+│   ├── css/            # Compiled Tailwind CSS
+│   ├── images/         # Icons and assets
+│   └── scripts/        # HTMX and utility scripts
+└── styles/
+    └── main.css        # Tailwind source
+```

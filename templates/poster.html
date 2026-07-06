@@ -11,40 +11,26 @@
         <header class="text-center mb-8">
             <h1 class="text-xl font-semibold text-[var(--accent-primary)] tracking-wide mb-2">DJ Showcase</h1>
             <p class="text-sm text-[var(--text-secondary)]">
-                AI-powered playlist generation. Choose a mood or describe your own.
+                AI-powered playlist generation. Describe your vibe and we'll do the rest.
             </p>
         </header>
 
         <!-- Form Container -->
         <div class="form-container">
 
-            <!-- Section 1: Presets -->
+            <!-- Section 1: Natural Language Input (Primary CTA) -->
             <section class="form-section">
-                <h2 id="preset-group-label" class="form-label">Select a Mood</h2>
-                <div
-                    id="preset-grid"
-                    class="preset-list"
-                    role="radiogroup"
-                    aria-labelledby="preset-group-label"
-                >
-                    {% for preset in presets %}
-                    <button
-                        type="button"
-                        class="preset-item"
-                        role="radio"
-                        aria-checked="false"
-                        data-preset-id="{{ preset.id }}"
-                        onclick="selectPreset('{{ preset.id }}')"
-                    >
-                        <span class="preset-name">{{ preset.name }}</span>
-                        <span class="preset-tags">
-                            {% for keyword in preset.keywords[:2] %}
-                            <span class="keyword-pill">{{ keyword }}</span>
-                            {% endfor %}
-                        </span>
-                    </button>
-                    {% endfor %}
-                </div>
+                <label class="form-label" for="mood-sentence">What are you in the mood for?</label>
+                <textarea
+                    id="mood-sentence"
+                    class="form-input form-textarea"
+                    placeholder="e.g. cooking dinner with friends on a Friday night, or feeling nostalgic on a rainy Sunday afternoon..."
+                    aria-describedby="mood-sentence-hint"
+                    rows="3"
+                ></textarea>
+                <p id="mood-sentence-hint" class="form-hint">
+                    Describe an activity, situation, or feeling — we'll find the perfect soundtrack
+                </p>
             </section>
 
             <!-- Progressive Disclosure Button -->
@@ -53,27 +39,42 @@
                     type="button"
                     class="custom-reveal-button"
                     aria-expanded="false"
-                    aria-controls="custom-input-section"
-                    onclick="toggleCustomSection()"
+                    aria-controls="preset-section"
+                    onclick="togglePresetSection()"
                 >
-                    Or describe your own mood
+                    Need inspiration?
                 </button>
             </div>
 
-            <!-- Section 2: Custom Keywords (Hidden by Default) -->
-            <div id="custom-input-section" class="custom-section" aria-hidden="true">
+            <!-- Section 2: Presets (Hidden by Default) -->
+            <div id="preset-section" class="custom-section" aria-hidden="true">
                 <section class="form-section">
-                    <label class="form-label" for="custom-keywords">Describe Your Mood</label>
-                    <input
-                        type="text"
-                        id="custom-keywords"
-                        class="form-input"
-                        placeholder="calm, acoustic, morning, peaceful..."
-                        aria-describedby="custom-keywords-hint"
+                    <h2 id="preset-group-label" class="form-label">Or pick a mood</h2>
+                    <div
+                        id="preset-grid"
+                        class="preset-list"
+                        role="radiogroup"
+                        aria-labelledby="preset-group-label"
                     >
-                    <span id="custom-keywords-hint" class="sr-only">
-                        Enter comma-separated keywords to describe your desired mood
-                    </span>
+                        {% for preset in presets %}
+                        <button
+                            type="button"
+                            class="preset-item"
+                            role="radio"
+                            aria-checked="false"
+                            tabindex="-1"
+                            data-preset-id="{{ preset.id }}"
+                            onclick="selectPreset('{{ preset.id }}')"
+                        >
+                            <span class="preset-name">{{ preset.name }}</span>
+                            <span class="preset-tags">
+                                {% for keyword in preset.keywords[:2] %}
+                                <span class="keyword-pill">{{ keyword }}</span>
+                                {% endfor %}
+                            </span>
+                        </button>
+                        {% endfor %}
+                    </div>
                 </section>
             </div>
 
@@ -111,12 +112,15 @@
 
             <!-- Pipeline Steps -->
             <div>
-                <!-- Step 1: Keywords -->
+                <!-- Step 1: Understanding Vibe -->
                 <div id="step-1" class="pipeline-step opacity-50">
                     <div class="step-icon waiting">1</div>
                     <div class="step-content">
-                        <div class="step-title">Analysing Keywords</div>
-                        <div class="step-detail"></div>
+                        <div class="step-title">Understanding Your Vibe</div>
+                        <div class="step-detail">
+                            <span class="step-sentence"></span>
+                            <span class="step-keywords"></span>
+                        </div>
                     </div>
                     <div class="step-status">waiting</div>
                 </div>
@@ -204,39 +208,43 @@
 <script>
     let selectedPresetId = null;
 
-    function toggleCustomSection() {
-        const customSection = document.getElementById('custom-input-section');
+    function togglePresetSection() {
+        const presetSection = document.getElementById('preset-section');
         const toggleButton = document.querySelector('.custom-reveal-button');
-        const customInput = document.getElementById('custom-keywords');
         const isExpanded = toggleButton.getAttribute('aria-expanded') === 'true';
 
         if (isExpanded) {
-            customSection.setAttribute('aria-hidden', 'true');
-            customSection.classList.remove('expanded');
+            presetSection.setAttribute('aria-hidden', 'true');
+            presetSection.classList.remove('expanded');
             toggleButton.setAttribute('aria-expanded', 'false');
         } else {
-            customSection.setAttribute('aria-hidden', 'false');
-            customSection.classList.add('expanded');
+            presetSection.setAttribute('aria-hidden', 'false');
+            presetSection.classList.add('expanded');
             toggleButton.setAttribute('aria-expanded', 'true');
-
-            // Focus the input after animation completes
-            setTimeout(() => {
-                customInput.focus();
-            }, 300);
 
             // Smooth scroll on mobile if section is below viewport
             setTimeout(() => {
-                const rect = customSection.getBoundingClientRect();
+                const rect = presetSection.getBoundingClientRect();
                 const isBelow = rect.bottom > window.innerHeight;
                 if (isBelow || rect.top < 0) {
-                    customSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                    presetSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
                 }
             }, 100);
+
+            // Focus the first preset button for keyboard users
+            setTimeout(() => {
+                const firstPreset = presetSection.querySelector('.preset-item');
+                if (firstPreset) {
+                    firstPreset.setAttribute('tabindex', '0');
+                    firstPreset.focus();
+                }
+            }, 300);
         }
     }
 
     function selectPreset(presetId) {
-        document.getElementById('custom-keywords').value = '';
+        // Clear the sentence input when a preset is selected
+        document.getElementById('mood-sentence').value = '';
 
         // Update ARIA checked state for all preset buttons
         document.querySelectorAll('.preset-item').forEach(card => {
@@ -265,6 +273,9 @@
             card.classList.remove('selected');
             card.setAttribute('aria-checked', 'false');
         });
+
+        // Clear the sentence input
+        document.getElementById('mood-sentence').value = '';
     }
 
     function resetSteps() {
@@ -283,6 +294,11 @@
             if (detail) {
                 // Clear text content
                 Array.from(detail.childNodes).filter(n => n.nodeType === Node.TEXT_NODE).forEach(n => n.textContent = '');
+                // Clear step 1 sentence and keywords
+                const sentenceEl = detail.querySelector('.step-sentence');
+                if (sentenceEl) sentenceEl.textContent = '';
+                const keywordsEl = detail.querySelector('.step-keywords');
+                if (keywordsEl) keywordsEl.textContent = '';
                 // Clear track list
                 const trackList = detail.querySelector('.track-list');
                 if (trackList) trackList.replaceChildren();
@@ -305,10 +321,10 @@
 
     async function startGeneration() {
         const email = document.getElementById('email-input').value;
-        const customKeywords = document.getElementById('custom-keywords').value;
+        const moodSentence = document.getElementById('mood-sentence').value;
 
-        if (!selectedPresetId && !customKeywords.trim()) {
-            showError('Please select a preset or enter keywords');
+        if (!selectedPresetId && !moodSentence.trim()) {
+            showError('Please describe what you\'re in the mood for, or select a preset');
             return;
         }
 
@@ -323,7 +339,7 @@
         if (selectedPresetId) {
             formData.append('preset_id', selectedPresetId);
         } else {
-            formData.append('keywords', customKeywords);
+            formData.append('sentence', moodSentence);
         }
 
         try {
@@ -399,8 +415,19 @@
         }
 
         if (data) {
-            if (step === 1 && data.keywords) {
-                detail.textContent = data.keywords.join(', ');
+            if (step === 1) {
+                const sentenceEl = detail.querySelector('.step-sentence');
+                const keywordsEl = detail.querySelector('.step-keywords');
+
+                // Display the original sentence if present
+                if (data.sentence && sentenceEl) {
+                    sentenceEl.textContent = '"' + data.sentence + '"';
+                }
+
+                // Display extracted keywords when available
+                if (data.keywords && keywordsEl) {
+                    keywordsEl.textContent = data.keywords.join(', ');
+                }
             } else if (step === 2 && data.mood) {
                 detail.textContent = data.mood;
             } else if (step === 3 && data.playlist) {
@@ -439,7 +466,8 @@
         document.getElementById('generate-btn').disabled = false;
     }
 
-    document.getElementById('custom-keywords').addEventListener('input', function() {
+    // Clear preset selection when user starts typing in the sentence input
+    document.getElementById('mood-sentence').addEventListener('input', function() {
         if (this.value.trim()) {
             selectedPresetId = null;
 
@@ -451,36 +479,16 @@
         }
     });
 
-    // Auto-expand custom section when it receives focus
-    document.getElementById('custom-keywords').addEventListener('focus', function() {
-        const customSection = document.getElementById('custom-input-section');
-        const toggleButton = document.querySelector('.custom-reveal-button');
-
-        if (customSection.getAttribute('aria-hidden') === 'true') {
-            customSection.setAttribute('aria-hidden', 'false');
-            customSection.classList.add('expanded');
-            toggleButton.setAttribute('aria-expanded', 'true');
-        }
-    });
-
     /**
      * Set up keyboard navigation for accessibility
      * - Arrow keys navigate preset radiogroup with roving tabindex
      * - Enter/Space selects focused preset
-     * - Escape collapses custom section
+     * - Escape collapses preset section
      */
     function setupKeyboardNavigation() {
         const presetButtons = Array.from(document.querySelectorAll('.preset-item'));
-        const customSection = document.getElementById('custom-input-section');
+        const presetSection = document.getElementById('preset-section');
         const toggleButton = document.querySelector('.custom-reveal-button');
-
-        // Initialise tabindex: first preset is tabbable, rest are not
-        if (presetButtons.length > 0) {
-            presetButtons[0].setAttribute('tabindex', '0');
-            for (let i = 1; i < presetButtons.length; i++) {
-                presetButtons[i].setAttribute('tabindex', '-1');
-            }
-        }
 
         // Arrow key navigation for preset radiogroup
         presetButtons.forEach((button, index) => {
@@ -514,14 +522,14 @@
             });
         });
 
-        // Escape key to collapse custom section
+        // Escape key to collapse preset section
         document.addEventListener('keydown', (event) => {
             if (event.key === 'Escape') {
                 const isExpanded = toggleButton.getAttribute('aria-expanded') === 'true';
                 if (isExpanded) {
                     event.preventDefault();
-                    customSection.setAttribute('aria-hidden', 'true');
-                    customSection.classList.remove('expanded');
+                    presetSection.setAttribute('aria-hidden', 'true');
+                    presetSection.classList.remove('expanded');
                     toggleButton.setAttribute('aria-expanded', 'false');
                     // Return focus to toggle button
                     toggleButton.focus();
